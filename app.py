@@ -1,7 +1,7 @@
 import streamlit as st
 import mylibrary
 
-# --- 1. User Input Widgets ---
+# 1. User Input Widgets
 st.title("Tales of Lanfang Ticketing")
 
 st.number_input("Number of adults", min_value=0, max_value=10, step=1, key="adults")
@@ -10,36 +10,40 @@ st.number_input("Number of seniors", min_value=0, max_value=10, step=1, key="sen
 st.slider("Audio guides to rent", min_value=0, max_value=3, step=1, key="rental")
 
 st.radio("Type of Ticket", options=["Peak", "Off-Peak"], key="ticket_type")
-st.radio("Visitor Category", options=["Local", "Foreign"], key="residency")
+st.radio("Visitor Category", options=["Local", "Foreign"], key="status")
 
-# --- 2. Calculation & Receipt Display ---
+# 2. Calculation & Receipt Display
 if st.button("Get Total"):
-    # Retrieve all widget values consistently from session_state
     adults = st.session_state.adults
     children = st.session_state.children
     seniors = st.session_state.seniors
     rental = st.session_state.rental
     ticket_type = st.session_state.ticket_type
-    residency = st.session_state.residency
+    status = st.session_state.status
 
-    # Delegate business logic to mylibrary.py
-    adults_cost, children_cost, seniors_cost = mylibrary.calculate_ticket_costs(
-        adults, children, seniors, ticket_type, residency
+    adult_price, children_price, senior_price, bundle_count, bundle_discount = (
+        mylibrary.calculate_total(adults, children, seniors, ticket_type, status)
     )
-    guides_cost = mylibrary.calculate_guide_cost(rental)
-    grand_total = round(adults_cost + children_cost + seniors_cost + guides_cost, 2)
+    guides_cost = mylibrary.audio_guides(rental)
 
-    # Format output dictionary for clean table rendering
-    receipt_summary = {
+    grand_total = round(
+        adult_price + children_price + senior_price - bundle_discount + guides_cost, 2
+    )
+
+    if bundle_count > 0:
+        st.success(f"Family Bundle Applied ({bundle_count}x): You saved ${bundle_discount:.2f}!")
+
+    receipt = {
         "Ticket Tier": ticket_type,
-        "Visitor Category": residency,
-        "Adults Subtotal": f"${adults_cost:.2f}",
-        "Children Subtotal": f"${children_cost:.2f}",
-        "Seniors Subtotal": f"${seniors_cost:.2f}",
+        "Visitor Category": status,
+        "Adults Subtotal": f"${adult_price:.2f}",
+        "Children Subtotal": f"${children_price:.2f}",
+        "Seniors Subtotal": f"${senior_price:.2f}",
+        "Family Bundle Discount": f"-${bundle_discount:.2f}",
         "Audio Guides Cost": f"${guides_cost:.2f}",
         "Total Payable": f"${grand_total:.2f}"
     }
 
-    st.table(receipt_summary)
+    st.table(receipt)
 else:
     st.info("Select your ticket quantities above and click 'Get Total'.")
