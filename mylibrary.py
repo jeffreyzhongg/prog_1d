@@ -7,14 +7,22 @@
 ## Currently, it returns 0. Modify the code so that it returns the total price according to the number of items. 
 ## ------------------------------------------------------------------------------------
 
-def calculate_total( adults, children ):
+def calculate_total(adults, children):
     ADULT_PRICE = 10
     CHILD_PRICE = 5
-    return 1, 1
+    
+    total_adults = adults * ADULT_PRICE
+    total_children = children * CHILD_PRICE
+    
+    return total_adults, total_children
 
 def audio_guides(items): 
     PRICE_PER_ITEM = 3
-    return 0
+    
+    total_guides = items * PRICE_PER_ITEM
+    
+    return total_guides
+
 
 ## Make It Yours ---------------------------------------------------------------------
 ## You are now ready to design your own ticketing scheme 
