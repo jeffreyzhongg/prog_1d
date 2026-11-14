@@ -1,64 +1,45 @@
-import streamlit as st 
-
-## The logic for the calculation is stored in functions in mylibrary.py 
+import streamlit as st
 import mylibrary
 
-## User Interface ---------------------------------------------------------------------
-## This file shows you streamlit code for two parts.
-## Data Entry - how to make widgets to get the user inputs. 
-## Calculation - how to get the result from the user inputs. 
-## ------------------------------------------------------------------------------------
+# --- 1. User Input Widgets ---
+st.title("Tales of Lanfang Ticketing")
 
-
-## Data Entry -------------------------------------------------------------------------
-## Shows you the code to 
-## 1) write a text on the screen
-## 2) obtain a number input from the user using a box
-## 3) obtain a number input from the user using a slider
-## 4) allow user to select one out of several choices using a radio button
-## The key attribute enables you to retrieve the data entered for that widget from st.session_state 
-## ------------------------------------------------------------------------------------
-
-
-st.write("Tales of Lanfang Tickets")
 st.number_input("Number of adults", min_value=0, max_value=10, step=1, key="adults")
 st.number_input("Number of children", min_value=0, max_value=10, step=1, key="children")
-st.slider("How many audio guides do you want to rent?", min_value=0, max_value=3, step=1, key="rental")
+st.number_input("Number of seniors", min_value=0, max_value=10, step=1, key="seniors")
+st.slider("Audio guides to rent", min_value=0, max_value=3, step=1, key="rental")
 
-## Code is written here to show you how a radio button works
-ticket_type = st.radio( 
-    label = "Type of Ticket",
-    options = ["Peak", "Off-Peak"]
-)
-st.write("Ticket Type Selected: ", ticket_type)
+st.radio("Type of Ticket", options=["Peak", "Off-Peak"], key="ticket_type")
+st.radio("Visitor Category", options=["Local", "Foreign"], key="residency")
 
-
-## Calculation -------------------------------------------------------------------------
-## Shows you the code to 
-## 1) declare a button and detect if it is clicked through the if-statement 
-## 2) obtain the user's inputs from the respective widgets using st.session_state 
-## 3) call the functions in mylibrary.py to get the result
-## 4) display the outcome in a streamlit table using a python dictionary 
-## ------------------------------------------------------------------------------------ 
-if st.button('Get Total'):
-    st.write('Calculating Your Total ...')
-
+# --- 2. Calculation & Receipt Display ---
+if st.button("Get Total"):
+    # Retrieve all widget values consistently from session_state
     adults = st.session_state.adults
-    children = st.session_state.children 
-    rental = st.session_state.rental 
+    children = st.session_state.children
+    seniors = st.session_state.seniors
+    rental = st.session_state.rental
+    ticket_type = st.session_state.ticket_type
+    residency = st.session_state.residency
 
-    adults_price, children_price = mylibrary.calculate_total(adults,children)
-    guides_cost = mylibrary.audio_guides(st.session_state.rental)
+    # Delegate business logic to mylibrary.py
+    adults_cost, children_cost, seniors_cost = mylibrary.calculate_ticket_costs(
+        adults, children, seniors, ticket_type, residency
+    )
+    guides_cost = mylibrary.calculate_guide_cost(rental)
+    grand_total = round(adults_cost + children_cost + seniors_cost + guides_cost, 2)
 
-    total_price = adults_price + children_price + guides_cost
+    # Format output dictionary for clean table rendering
+    receipt_summary = {
+        "Ticket Tier": ticket_type,
+        "Visitor Category": residency,
+        "Adults Subtotal": f"${adults_cost:.2f}",
+        "Children Subtotal": f"${children_cost:.2f}",
+        "Seniors Subtotal": f"${seniors_cost:.2f}",
+        "Audio Guides Cost": f"${guides_cost:.2f}",
+        "Total Payable": f"${grand_total:.2f}"
+    }
 
-    data = {"Total Price for Adults": adults_price,
-            "Total Price for Children": children_price, 
-            "ticket_type": ticket_type,
-            "audio_guides cost": guides_cost,
-            "Total you have to pay": total_price
-            }
-
-    st.table(data)
+    st.table(receipt_summary)
 else:
-    st.write('Please Key In The Quantity')
+    st.info("Select your ticket quantities above and click 'Get Total'.")

@@ -1,30 +1,30 @@
-## Business Logic ---------------------------------------------------------------------
-## This file stores functions that implement the business logic.
-## 1) calculate_total: Takes in the number of adults and children and returns the total price. 
-## Currently, it returns 0,0. Modify the code so that it returns the total price of the tickets. 
-##
-## 2) audio_guides: Takes in the number of items and return the total price.
-## Currently, it returns 0. Modify the code so that it returns the total price according to the number of items. 
-## ------------------------------------------------------------------------------------
+# --- Pricing Configuration (Edit all rates in this single section) ---
+TICKET_PRICES = {
+    "Off-Peak": {"Adult": 10.00, "Child": 6.00, "Senior": 6.00},
+    "Peak":     {"Adult": 14.00, "Child": 8.00, "Senior": 8.00}
+}
 
-def calculate_total(adults, children):
-    ADULT_PRICE = 10
-    CHILD_PRICE = 5
-    
-    total_adults = adults * ADULT_PRICE
-    total_children = children * CHILD_PRICE
-    
-    return total_adults, total_children
+RESIDENCY_MULTIPLIERS = {
+    "Local": 1.0,
+    "Foreign": 1.5
+}
 
-def audio_guides(items): 
-    PRICE_PER_ITEM = 3
-    
-    total_guides = items * PRICE_PER_ITEM
-    
-    return total_guides
+ADDON_PRICES = {
+    "Audio Guide": 3.00
+}
 
 
-## Make It Yours ---------------------------------------------------------------------
-## You are now ready to design your own ticketing scheme 
-## And modify the code so that the web application works according to your design. 
-## ------------------------------------------------------------------------------------
+# --- Calculation Functions ---
+def calculate_ticket_costs(adults, children, seniors, ticket_type, residency):
+    tier_rates = TICKET_PRICES[ticket_type]
+    multiplier = RESIDENCY_MULTIPLIERS[residency]
+
+    adults_cost = round(adults * tier_rates["Adult"] * multiplier, 2)
+    children_cost = round(children * tier_rates["Child"] * multiplier, 2)
+    seniors_cost = round(seniors * tier_rates["Senior"] * multiplier, 2)
+
+    return adults_cost, children_cost, seniors_cost
+
+
+def calculate_guide_cost(guide_count):
+    return round(guide_count * ADDON_PRICES["Audio Guide"], 2)
