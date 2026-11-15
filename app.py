@@ -57,6 +57,9 @@ if st.button("Get Total"):
             f"**Visitor Category:** {residency} | "
             f"**Pass Tier:** {pass_type}"
         )
+
+        if bundle_count > 0:
+            st.success(f"Family Bundle Applied ({bundle_count}x): You saved ${bundle_discount:.2f}!")
     
         # Build table rows dynamically so only selected items (qty > 0) appear
         line_items = [
@@ -76,12 +79,6 @@ if st.button("Get Total"):
                     "Subtotal": f"${cost:.2f}"
                 })
 
-        if bundle_count > 0:
-            receipt_rows.append({
-                "Item": "Family Bundle Discount (15%)",
-                "Quantity": bundle_count,
-                "Subtotal": f"-${bundle_discount:.2f}"
-            })
 
         st.table(receipt_rows)
         st.metric(label="Total Payable", value=f"${total_price:.2f}")
