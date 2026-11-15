@@ -58,6 +58,7 @@ if st.button("Get Total"):
             f"**Pass Tier:** {pass_type}"
         )
 
+        # Display amount of family bundle & amount
         if bundle_count > 0:
             st.success(f"Family Bundle Applied ({bundle_count}x): You saved ${bundle_discount:.2f}!")
     
