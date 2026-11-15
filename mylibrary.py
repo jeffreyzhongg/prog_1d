@@ -25,10 +25,16 @@ ADDON_PRICES = {
     "Meal Voucher": 12.00
 }
 
+PROMO_CODES = {
+    "YAY10": 0.10,  # 10% off total cost
+    "SUTD20": 0.20  # 20% off total cost
+}
+
 ## Business Logic ---------------------------------------------------------------------
 # Validation
-def validate_booking(adults, children, seniors, rental):
+def validate_booking(adults, children, seniors, rental, promo_code):
     total_visitors = adults + children + seniors
+    clean_code = promo_code.strip().upper()
 
     if total_visitors == 0:
         return False, "Please select at least one ticket before calculating."
@@ -36,6 +42,8 @@ def validate_booking(adults, children, seniors, rental):
         return False, "Children must be accompanied by at least one Adult or Senior."
     if rental > total_visitors:
         return False, "Audio guides rented cannot exceed the total number of visitors."
+    if clean_code != "" and clean_code not in PROMO_CODES:
+        return False, f"Invalid promo code'{clean_code}'. Enter a valid code."
 
     return True, ""
 
@@ -82,6 +90,18 @@ def calculate_total(adults, children, seniors, ticket_type, residency, pass_type
         bundle_count,
         bundle_discount,
     )
+
+def calculate_promo(promo_code, ticket_subtotal):
+    clean_code = promo_code.strip().upper()
+
+    if clean_code == "":
+        return 0.00, "none", ""
+    if clean_code in PROMO_CODES:
+        discount = round(ticket_subtotal * PROMO_CODES[clean_code], 2)
+        return discount, "valid", clean_code
+    
+    return 0.00, "invalid", clean_code
+
 
 def calculate_addons(addon_quantities):
     addon_subtotals = {}
