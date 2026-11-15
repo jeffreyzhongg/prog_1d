@@ -1,7 +1,7 @@
 import streamlit as st
 import mylibrary
 
-# 1. User Input Widgets
+## Data Entry -------------------------------------------------------------------------
 st.title("Tales of Lanfang Ticketing")
 
 st.number_input("Number of adults", min_value=0, max_value=10, step=1, key="adults")
@@ -15,8 +15,9 @@ st.radio(label="Pass Tier", options=["Standard", "Express"], key="pass_type")
 st.slider("How many audio guides do you want to rent?", min_value=0, max_value=3, step=1, key="rental")
 st.number_input("Number of meal vouchers", min_value=0, max_value=10, step=1, key="meals")
 
-# 2. Calculation & Receipt Display
+## Calculation & Receipt Display ------------------------------------------------------
 if st.button("Get Total"):
+
     adults = st.session_state.adults
     children = st.session_state.children
     seniors = st.session_state.seniors
@@ -26,37 +27,44 @@ if st.button("Get Total"):
     rental = st.session_state.rental
     meals = st.session_state.meals
 
-    # Unpacks subtotal breakdown and bundle savings from business logic
-    adult_price, children_price, senior_price, bundle_count, bundle_discount = (
-        mylibrary.calculate_total(adults, children, seniors, ticket_type, residency, pass_type)
-    )
+    # Validate inputs before running price calculations
+    is_valid, error_msg = mylibrary.validate_booking(adults, children, seniors, rental)
 
-    # Bundle add-on quantities into a dict so calculate_addons() loops over
-    addon_quantities = {
-        "Audio Guide": rental,
-        "Meal Voucher": meals
-    }
-    addons_cost = mylibrary.calculate_addons(addon_quantities)
+    if not is_valid:
+        st.error(error_msg)
 
-    total_price = round(
-        adult_price + children_price + senior_price - bundle_discount + addons_cost, 2
-    )
+    else:
+        # Unpacks subtotal breakdown and bundle savings from business logic
+        adult_price, children_price, senior_price, bundle_count, bundle_discount = (
+            mylibrary.calculate_total(adults, children, seniors, ticket_type, residency, pass_type)
+        )
 
-    if bundle_count > 0:
-        st.success(f"Family Bundle Applied ({bundle_count}x): You saved ${bundle_discount:.2f}!")
+        # Bundle add-on quantities into a dict so calculate_addons() loops over
+        addon_quantities = {
+            "Audio Guide": rental,
+            "Meal Voucher": meals
+        }
+        addons_cost = mylibrary.calculate_addons(addon_quantities)
 
-    receipt = {
-        "Ticket Tier": ticket_type,
-        "Visitor Category": residency,
-        "Pass Tier": pass_type,
-        "Adults Subtotal": f"${adult_price:.2f}",
-        "Children Subtotal": f"${children_price:.2f}",
-        "Seniors Subtotal": f"${senior_price:.2f}",
-        "Family Bundle Discount": f"-${bundle_discount:.2f}",
-        "Add-ons Cost (Audio Guides & Meals)": f"${addons_cost:.2f}",
-        "Total Payable": f"${total_price:.2f}"
-    }
+        total_price = round(
+            adult_price + children_price + senior_price - bundle_discount + addons_cost, 2
+        )
 
-    st.table(receipt)
+        if bundle_count > 0:
+            st.success(f"Family Bundle Applied ({bundle_count}x): You saved ${bundle_discount:.2f}!")
+
+        receipt = {
+            "Ticket Tier": ticket_type,
+            "Visitor Category": residency,
+            "Pass Tier": pass_type,
+            "Adults Subtotal": f"${adult_price:.2f}",
+            "Children Subtotal": f"${children_price:.2f}",
+            "Seniors Subtotal": f"${senior_price:.2f}",
+            "Family Bundle Discount": f"-${bundle_discount:.2f}",
+            "Add-ons Cost (Audio Guides & Meals)": f"${addons_cost:.2f}",
+            "Total Payable": f"${total_price:.2f}"
+        }
+
+        st.table(receipt)
 else:
     st.info("Select your ticket quantities above.")

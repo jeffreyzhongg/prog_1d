@@ -1,4 +1,4 @@
-# Pricing Configuration (edit all rates and bundle rules here)
+## Pricing Configuration --------------------------------------------------------------
 TICKET_PRICES = {
     "Off-Peak": {"Adult": 10.00, "Child": 6.00, "Senior": 6.00},
     "Peak":     {"Adult": 14.00, "Child": 8.00, "Senior": 8.00}
@@ -25,8 +25,23 @@ ADDON_PRICES = {
     "Meal Voucher": 12.00
 }
 
+## Business Logic ---------------------------------------------------------------------
 
-# Business Logic
+# Validation
+def validate_booking(adults, children, seniors, rental):
+    total_visitors = adults + children + seniors
+
+    if total_visitors == 0:
+        return False, "Please select at least one ticket before calculating."
+    if children > 0 and (adults + seniors) == 0:
+        return False, "Children must be accompanied by at least one Adult or Senior."
+    if rental > total_visitors:
+        return False, "Audio guides rented cannot exceed the total number of visitors."
+
+    return True, ""
+
+
+# Calculation
 def calculate_total(adults, children, seniors, ticket_type, residency, pass_type):
     rates = TICKET_PRICES[ticket_type]
     multiplier = RESIDENCY_MULTIPLIER[residency]
@@ -44,7 +59,7 @@ def calculate_total(adults, children, seniors, ticket_type, residency, pass_type
         unit_price = (rates[category] * multiplier) + surcharge
         subtotals[category] = round(count * unit_price, 2)
 
-    # Determine how many complete family bundles qualify using floor division (//)
+    # Determine total number of complete family bundles eligible for discount, min() enforces limiting group
     adult_bundles = adults // FAMILY_BUNDLE["min_adults"]
     child_bundles = children // FAMILY_BUNDLE["min_children"]
     bundle_count = min(adult_bundles, child_bundles)
