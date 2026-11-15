@@ -44,27 +44,46 @@ if st.button("Get Total"):
             "Audio Guide": rental,
             "Meal Voucher": meals
         }
-        addons_cost = mylibrary.calculate_addons(addon_quantities)
+        addon_subtotals, addons_cost = mylibrary.calculate_addons(addon_quantities)
 
         total_price = round(
             adult_price + children_price + senior_price - bundle_discount + addons_cost, 2
         )
 
+        # Display booking selections and itemised receipt table
+        st.subheader("Booking Receipt")
+        st.write(
+            f"**Ticket Tier:** {ticket_type} | "
+            f"**Visitor Category:** {residency} | "
+            f"**Pass Tier:** {pass_type}"
+        )
+    
+        # Build table rows dynamically so only selected items (qty > 0) appear
+        line_items = [
+            ("Adult Ticket", adults, adult_price),
+            ("Child Ticket", children, children_price),
+            ("Senior Ticket", seniors, senior_price),
+            ("Audio Guide", rental, addon_subtotals["Audio Guide"]),
+            ("Meal Voucher", meals, addon_subtotals["Meal Voucher"]),
+        ]
+
+        receipt_rows = []
+        for item_name, qty, cost in line_items:
+            if qty > 0:
+                receipt_rows.append({
+                    "Item": item_name,
+                    "Quantity": qty,
+                    "Subtotal": f"${cost:.2f}"
+                })
+
         if bundle_count > 0:
-            st.success(f"Family Bundle Applied ({bundle_count}x): You saved ${bundle_discount:.2f}!")
+            receipt_rows.append({
+                "Item": "Family Bundle Discount (15%)",
+                "Quantity": bundle_count,
+                "Subtotal": f"-${bundle_discount:.2f}"
+            })
 
-        receipt = {
-            "Ticket Tier": ticket_type,
-            "Visitor Category": residency,
-            "Pass Tier": pass_type,
-            "Adults Subtotal": f"${adult_price:.2f}",
-            "Children Subtotal": f"${children_price:.2f}",
-            "Seniors Subtotal": f"${senior_price:.2f}",
-            "Family Bundle Discount": f"-${bundle_discount:.2f}",
-            "Add-ons Cost (Audio Guides & Meals)": f"${addons_cost:.2f}",
-            "Total Payable": f"${total_price:.2f}"
-        }
-
-        st.table(receipt)
+        st.table(receipt_rows)
+        st.metric(label="Total Payable", value=f"${total_price:.2f}")
 else:
     st.info("Select your ticket quantities above.")

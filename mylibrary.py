@@ -26,7 +26,6 @@ ADDON_PRICES = {
 }
 
 ## Business Logic ---------------------------------------------------------------------
-
 # Validation
 def validate_booking(adults, children, seniors, rental):
     total_visitors = adults + children + seniors
@@ -85,8 +84,12 @@ def calculate_total(adults, children, seniors, ticket_type, residency, pass_type
     )
 
 def calculate_addons(addon_quantities):
+    addon_subtotals = {}
     total_addons = 0.00
-    for addon_name, quantity in addon_quantities.items():
-        total_addons += quantity * ADDON_PRICES[addon_name]
 
-    return round(total_addons, 2)
+    for addon_name, quantity in addon_quantities.items():
+        cost = round(quantity * ADDON_PRICES[addon_name], 2)
+        addon_subtotals[addon_name] = cost
+        total_addons += cost
+
+    return addon_subtotals, round(total_addons, 2)
