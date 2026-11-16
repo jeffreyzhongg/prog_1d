@@ -14,14 +14,18 @@ with st.expander("View Ticket Rates & Discount Rules"):
 
     st.markdown(
         f"**Local Base Admission (Off-Peak / Peak):** \n\n"
-        f"Adult `${off_peak['Adult']:.2f}` / `${peak['Adult']:.2f}`\n\n"
-        f"Child `${off_peak['Child']:.2f}` / `${peak['Child']:.2f}`\n\n"
-        f"Senior `${off_peak['Senior']:.2f}` / `${peak['Senior']:.2f}`\n\n "
-        f"**Modifiers & Upgrades:** \n\n Foreign visitors `{mylibrary.RESIDENCY_MULTIPLIER['Foreign']}x` base rate \n\n"
-        f"Express Pass `+${mylibrary.PASS_SURCHARGE['Express']:.2f}` per ticket\n\n"
+        f"Adult: `${off_peak['Adult']:.2f}` / `${peak['Adult']:.2f}`\n\n"
+        f"Child: `${off_peak['Child']:.2f}` / `${peak['Child']:.2f}`\n\n"
+        f"Senior: `${off_peak['Senior']:.2f}` / `${peak['Senior']:.2f}`\n\n "
+        f"---\n\n"
+        
+        f"**Modifiers & Upgrades:** \n\n Foreign visitors: `{mylibrary.RESIDENCY_MULTIPLIER['Foreign']}x` base rate \n\n"
+        f"Express Pass: `+${mylibrary.PASS_SURCHARGE['Express']:.2f}` per ticket\n\n"
+        f"---\n\n"
 
-        f"**Add-Ons:** \n\n Audio Guide `${addons['Audio Guide']:.2f}` \n\n "
-        f"Meal Voucher `${addons['Meal Voucher']:.2f}`\n\n"
+        f"**Add-Ons:** \n\n Audio Guide: `${addons['Audio Guide']:.2f}` \n\n "
+        f"Meal Voucher: `${addons['Meal Voucher']:.2f}`\n\n"
+        f"---\n\n"
 
         f"**Discounts (Non-Stacking):** \n\n `{int(bundle['discount_rate'] * 100)}%` off base admission per "
         f"`{bundle['min_adults']}` Adults + `{bundle['min_children']}` Children bundle, or apply a valid promo code."
@@ -31,30 +35,30 @@ st.divider()
 
 # Grouped Data Entry
 st.subheader("1. Select Visitors")
-v_col1, v_col2, v_col3 = st.columns(3)
-with v_col1:
+a_col1, a_col2, a_col3 = st.columns(3)
+with a_col1:
     st.number_input("Adults", min_value=0, max_value=10, step=1, key="adults")
-with v_col2:
+with a_col2:
     st.number_input("Children", min_value=0, max_value=10, step=1, key="children")
-with v_col3:
+with a_col3:
     st.number_input("Seniors", min_value=0, max_value=10, step=1, key="seniors")
 
 st.subheader("2. Ticket & Pass Options")
-o_col1, o_col2, o_col3 = st.columns(3)
-with o_col1:
+b_col1, b_col2, b_col3 = st.columns(3)
+with b_col1:
     st.radio("Ticket Tier", options=["Peak", "Off-Peak"], horizontal=True, key="ticket_type")
-with o_col2:
+with b_col2:
     st.radio("Visitor Category", options=["Local", "Foreign"], horizontal=True, key="residency")
-with o_col3:
+with b_col3:
     st.radio("Pass Tier", options=["Standard", "Express"], horizontal=True, key="pass_type")
 
 st.subheader("3. Add-Ons & Promo Code")
-a_col1, a_col2, a_col3 = st.columns(3)
-with a_col1:
+c_col1, c_col2, c_col3 = st.columns(3)
+with c_col1:
     st.slider("Audio Guides", min_value=0, max_value=3, step=1, key="rental")
-with a_col2:
+with c_col2:
     st.number_input("Meal Vouchers", min_value=0, max_value=10, step=1, key="meals")
-with a_col3:
+with c_col3:
     st.text_input("Promo Code (Optional)", placeholder="e.g. LANFANG10", key="promo_code")
 
 st.divider()
