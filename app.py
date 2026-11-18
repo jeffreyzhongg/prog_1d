@@ -2,7 +2,7 @@ import streamlit as st
 import mylibrary
 
 ## Data Entry -------------------------------------------------------------------------
-st.title("Hossen Ticketing")
+st.title("Masrur Hossen's Ticketing")
 st.caption("Configure your park tickets, pass tier, and optional add-ons below.")
 
 # Dynamic Rate Card
@@ -59,7 +59,7 @@ with c_col1:
 with c_col2:
     st.number_input("Meal Vouchers", min_value=0, max_value=10, step=1, key="meals")
 with c_col3:
-    st.text_input("Promo Code (Optional)", placeholder="e.g. LANFANG10", key="promo_code")
+    st.text_input("Promo Code (Optional)", placeholder="e.g. PROMOCODE", key="promo_code")
 
 st.divider()
 
@@ -110,8 +110,8 @@ if st.button("Get Total"):
         # Display booking selections and itemised receipt table
         st.subheader("Booking Receipt")
         st.write(
-            f"**Ticket Tier:** {ticket_type} | "
-            f"**Visitor Category:** {residency} | "
+            f"**Ticket Tier:** {ticket_type} \n\n"
+            f"**Visitor Category:** {residency} \n\n"
             f"**Pass Tier:** {pass_type}"
         )
 
@@ -150,7 +150,6 @@ if st.button("Get Total"):
                     "Quantity": qty,
                     "Subtotal": f"${cost:.2f}"
                 })
-
 
         st.table(receipt_rows)
         st.metric(label="Total Payable", value=f"${total_price:.2f}")
